@@ -1,0 +1,472 @@
+/* styles.css - Mental Arifmetika va Abakus stillari */
+
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary: #06b6d4;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --bg-dark: #0f172a;
+    --card-dark: #1e293b;
+    --card-border: #334155;
+    
+    /* Abakus Yog'och Mavzusi */
+    --frame-bg: linear-gradient(135deg, #422006 0%, #78350f 50%, #451a03 100%);
+    --frame-border: #92400e;
+    --beam-bg: linear-gradient(180deg, #271406 0%, #451a03 50%, #1c0e04 100%);
+    --wire-color: linear-gradient(90deg, #94a3b8 0%, #e2e8f0 50%, #64748b 100%);
+    
+    /* Munchoq ranglari */
+    --bead-top-color: #fbbf24;
+    --bead-ridge-color: #d97706;
+    --bead-ridge-color-dark: #b45309;
+    --bead-bottom-color: #78350f;
+}
+
+/* Zamonaviy mavzu (Modern Theme) */
+.theme-modern {
+    --frame-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    --frame-border: #38bdf8;
+    --beam-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --wire-color: linear-gradient(90deg, #38bdf8 0%, #e0f2fe 50%, #0284c7 100%);
+    --bead-top-color: #38bdf8;
+    --bead-ridge-color: #0284c7;
+    --bead-ridge-color-dark: #0369a1;
+    --bead-bottom-color: #0c4a6e;
+}
+
+/* Qizil/Yoqut mavzu (Ruby Theme) */
+.theme-ruby {
+    --frame-bg: linear-gradient(135deg, #3f1019 0%, #881337 50%, #4c0519 100%);
+    --frame-border: #f43f5e;
+    --beam-bg: linear-gradient(180deg, #280510 0%, #4c0519 100%);
+    --wire-color: linear-gradient(90deg, #cbd5e1 0%, #ffffff 50%, #94a3b8 100%);
+    --bead-top-color: #fb7185;
+    --bead-ridge-color: #e11d48;
+    --bead-ridge-color-dark: #be123c;
+    --bead-bottom-color: #881337;
+}
+
+/* Jade / Zumrad mavzu */
+.theme-jade {
+    --frame-bg: linear-gradient(135deg, #062f22 0%, #064e3b 50%, #022c22 100%);
+    --frame-border: #10b981;
+    --beam-bg: linear-gradient(180deg, #022018 0%, #064e3b 100%);
+    --wire-color: linear-gradient(90deg, #e2e8f0 0%, #ffffff 50%, #cbd5e1 100%);
+    --bead-top-color: #34d399;
+    --bead-ridge-color: #059669;
+    --bead-ridge-color-dark: #047857;
+    --bead-bottom-color: #064e3b;
+}
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+body {
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    background: radial-gradient(circle at top center, #1e1b4b 0%, #0f172a 45%, #030712 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* --- ABAKUS DIZAYNI --- */
+.soroban-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 8px 4px;
+    box-sizing: border-box;
+}
+
+.abacus-column-labels {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    padding: 0 10px 8px 10px;
+    box-sizing: border-box;
+}
+
+.rod-label {
+    flex: 1;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Asosiy Yog'och Ramka */
+.soroban-frame {
+    width: 100%;
+    max-width: 100%;
+    background: var(--frame-bg);
+    border: 12px solid #572909;
+    border-image: var(--frame-bg) 20 round;
+    border-radius: 18px;
+    box-shadow: 
+        0 20px 35px -10px rgba(0, 0, 0, 0.7),
+        inset 0 2px 6px rgba(255, 255, 255, 0.25),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.8),
+        0 0 0 2px rgba(255, 255, 255, 0.1);
+    position: relative;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.soroban-rods-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    position: relative;
+    min-height: 380px;
+    box-sizing: border-box;
+}
+
+.soroban-rod-column {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 380px;
+    padding: 0 2px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Sim (O'q metall / yog'och) */
+.rod-wire {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 6px;
+    transform: translateX(-50%);
+    background: var(--wire-color);
+    box-shadow: 
+        1px 0 2px rgba(0,0,0,0.5),
+        -1px 0 2px rgba(255,255,255,0.4);
+    border-radius: 3px;
+    z-index: 1;
+}
+
+/* Yuqori qism (1 munchoq, 5 qiymat) */
+.rod-section-upper {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    z-index: 2;
+}
+
+/* To'siq (Calculation Beam) */
+.rod-section-beam {
+    width: 100%;
+    height: 22px;
+    background: var(--beam-bg);
+    box-shadow: 
+        inset 0 2px 3px rgba(255,255,255,0.3),
+        inset 0 -2px 3px rgba(0,0,0,0.7),
+        0 2px 5px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* To'siq ustidagi Birlik nuqtasi (Unit dot) */
+.unit-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cbd5e1 60%, #64748b 100%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+/* Quyi qism (4 munchoq, 1 qiymatdan) */
+.rod-section-lower {
+    width: 100%;
+    height: 258px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Munchoqlar (Beads) */
+.soroban-bead {
+    position: absolute;
+    left: 50%;
+    width: 96%;
+    max-width: 76px;
+    min-width: 0;
+    height: 40px;
+    transform: translateX(-50%);
+    cursor: pointer;
+    transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease;
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5));
+    box-sizing: border-box;
+}
+
+.soroban-bead:hover {
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) brightness(1.1);
+}
+
+.bead-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Yuqori munchoq joylashuvi */
+.rod-section-upper .bead-upper {
+    top: 4px; /* Neytral: Yuqorida yopishgan */
+}
+
+.rod-section-upper .bead-upper.bead-active-down {
+    transform: translate(-50%, 54px); /* Faol: To'siqqa tushgan */
+}
+
+/* Quyi 4 ta munchoq joylashuvi (Default / Inactive - pastda to'plangan) */
+.rod-section-lower .bead-lower[data-index="0"] {
+    top: 100px;
+}
+.rod-section-lower .bead-lower[data-index="1"] {
+    top: 138px;
+}
+.rod-section-lower .bead-lower[data-index="2"] {
+    top: 176px;
+}
+.rod-section-lower .bead-lower[data-index="3"] {
+    top: 214px;
+}
+
+/* Quyi munchoqlar faol bo'lganda (To'siqqa ko'tarilgan) */
+.rod-section-lower .bead-lower.bead-active-up {
+    transform: translate(-50%, -96px);
+}
+
+/* Pastki son qiymatlari qatori */
+.abacus-column-values {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    padding: 10px 20px 0 20px;
+}
+
+.rod-value {
+    flex: 1;
+    text-align: center;
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: #f59e0b;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+/* --- FLESH ANZAN (FLASH CALCULATION) STILLARI --- */
+.flash-display-box {
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #1e293b 0%, #0b1120 100%);
+    border: 2px solid #334155;
+    border-radius: 24px;
+    box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7), 0 10px 25px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.flash-number {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(4rem, 14vw, 7.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    animation: flashZoom 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flash-number.positive {
+    color: #38bdf8;
+    text-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
+}
+
+.flash-number.negative {
+    color: #f43f5e;
+    text-shadow: 0 0 30px rgba(244, 63, 94, 0.6);
+}
+
+.flash-number.countdown {
+    color: #fbbf24;
+    text-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
+    animation: pulseCount 0.9s infinite ease-in-out;
+}
+
+@keyframes flashZoom {
+    0% { transform: scale(0.65); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulseCount {
+    0% { transform: scale(0.85); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.85); opacity: 0.6; }
+}
+
+/* --- TEZKOR SPRINT VA RAQAMLAR TUGMALARI --- */
+.numpad-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    padding: 16px 0;
+    transition: all 0.12s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.numpad-btn:active {
+    transform: scale(0.94);
+    background: #334155;
+    border-color: #6366f1;
+}
+
+/* Combo badge */
+.combo-badge {
+    animation: bounceIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Chip / Tugma Sozlamalari (Flesh Anzan va Boshqa Bo'limlar Uchun) */
+.setting-chip {
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.setting-chip:active {
+    transform: scale(0.96);
+}
+
+.setting-chip.active {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    font-weight: 800 !important;
+}
+
+/* Mobil Menyu Drawer Animatsiyasi */
+#mobile-menu-drawer {
+    transition: max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, transform 0.25s ease;
+    overflow: hidden;
+}
+
+#mobile-menu-drawer.menu-closed {
+    max-height: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+}
+
+#mobile-menu-drawer.menu-open {
+    max-height: 520px !important;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Responsive moslashuv */
+@media (max-width: 640px) {
+    .soroban-wrapper {
+        padding: 4px 0;
+        width: 100%;
+    }
+    .soroban-frame {
+        border-width: 6px;
+        padding: 4px;
+        border-radius: 12px;
+    }
+    .soroban-rods-container {
+        min-height: 290px;
+    }
+    .soroban-rod-column {
+        height: 290px;
+        padding: 0 0.5px;
+    }
+    .rod-section-upper {
+        height: 70px;
+    }
+    .rod-section-lower {
+        height: 200px;
+    }
+    .rod-section-upper .bead-upper.bead-active-down {
+        transform: translate(-50%, 38px);
+    }
+    .rod-section-lower .bead-lower[data-index="0"] { top: 76px; }
+    .rod-section-lower .bead-lower[data-index="1"] { top: 104px; }
+    .rod-section-lower .bead-lower[data-index="2"] { top: 132px; }
+    .rod-section-lower .bead-lower[data-index="3"] { top: 160px; }
+    
+    .rod-section-lower .bead-lower.bead-active-up {
+        transform: translate(-50%, -72px) !important;
+    }
+    .soroban-bead {
+        height: 28px;
+        width: 98%;
+    }
+    .abacus-column-labels {
+        padding: 0 2px 4px 2px;
+    }
+    .abacus-column-values {
+        padding: 4px 2px 0 2px;
+    }
+    .rod-label {
+        font-size: 0.55rem;
+    }
+    .rod-value {
+        font-size: 0.95rem;
+    }
+}

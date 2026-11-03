@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentalPro — Mental Arifmetika va Interaktiv Abakus</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
+
+    <!-- HEADER / Yuqori panel -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <!-- Logo & Brand -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('abacus')">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                    <span class="text-2xl">🧮</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                        Mental<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">Pro</span>
+                        <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Soroban</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">Mental arifmetika va hisoblash tezligi trenajyori</p>
+                </div>
+            </div>
+
+            <!-- Tovush va Qo'shimcha Tugmalar + Mobil Menyu -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Tovush tugmasi -->
+                <button id="header-sound-btn" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-indigo-500/40 bg-indigo-950/40 text-indigo-300 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 hover:bg-indigo-900/50" title="Tovushni yoqish/o'chirish">
+                    <span>🔊</span>
+                    <span class="hidden md:inline">Tovush: Yoqilgan</span>
+                </button>
+
+                <!-- Nutq (Speech) tugmasi -->
+                <button id="header-speech-btn" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-400 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 hover:bg-slate-700" title="Ovozli aytish">
+                    <span>💬</span>
+                    <span class="hidden md:inline">Ovoz: O'chiq</span>
+                </button>
+
+                <!-- Tezkor Statistika yorlig'i (desktop) -->
+                <div class="hidden lg:flex items-center gap-2 pl-3 border-l border-slate-800 text-xs font-medium">
+                    <span class="text-slate-400">Jami:</span>
+                    <span id="stats-total-solved" class="font-bold text-amber-400 font-mono">0</span>
+                    <span class="text-slate-400 ml-2">Aniqlik:</span>
+                    <span id="stats-accuracy" class="font-bold text-emerald-400 font-mono">0%</span>
+                </div>
+
+                <!-- MOBIL VA PLANSHEt UCHUN MENYU TUGMASI (lg:hidden) -->
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 text-white text-xs font-bold flex items-center gap-1 shadow-lg shadow-indigo-600/25 border border-indigo-400/30 active:scale-95 transition">
+                    <span id="mobile-menu-icon" class="text-base leading-none">☰</span>
+                    <span id="mobile-current-tab-text" class="font-black text-[11px] sm:text-xs">🧮 Abakus</span>
+                    <span class="text-[9px] opacity-75">▾</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBIL VA PLANSHEt UCHUN OCHILUVCHI MENYU (DRAWER) -->
+        <div id="mobile-menu-drawer" class="lg:hidden menu-closed border-t border-slate-800/80 bg-slate-900/95 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 py-3 space-y-2">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-1">Bo'limni tanlang:</div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button onclick="switchTab('abacus'); toggleMobileMenu(false);" id="mob-tab-abacus" class="p-3 rounded-2xl bg-indigo-600 text-white font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left border border-indigo-400/40 shadow-md">
+                        <span class="text-2xl">🧮</span>
+                        <div>
+                            <div class="font-black text-sm">Abakus</div>
+                            <div class="text-[10px] opacity-80">Interaktiv Soroban</div>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('flash'); toggleMobileMenu(false);" id="mob-tab-flash" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left hover:border-slate-700">
+                        <span class="text-2xl">⚡</span>
+                        <div>
+                            <div class="font-black text-sm">Flesh Anzan</div>
+                            <div class="text-[10px] text-slate-400">Tezlik trenajyori</div>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('sprint'); toggleMobileMenu(false);" id="mob-tab-sprint" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left hover:border-slate-700">
+                        <span class="text-2xl">⏱️</span>
+                        <div>
+                            <div class="font-black text-sm">Sprint 60s</div>
+                            <div class="text-[10px] text-slate-400">Vaqt poygasi</div>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('memory'); toggleMobileMenu(false);" id="mob-tab-memory" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left hover:border-slate-700">
+                        <span class="text-2xl">🧠</span>
+                        <div>
+                            <div class="font-black text-sm">Xotira</div>
+                            <div class="text-[10px] text-slate-400">Fotografik mashq</div>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('formulas'); toggleMobileMenu(false);" id="mob-tab-formulas" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left hover:border-slate-700">
+                        <span class="text-2xl">📚</span>
+                        <div>
+                            <div class="font-black text-sm">Formulalar</div>
+                            <div class="text-[10px] text-slate-400">5 va 10 do'stlari</div>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('stats'); toggleMobileMenu(false);" id="mob-tab-stats" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 font-bold text-xs flex items-center gap-2.5 transition active:scale-95 text-left hover:border-slate-700">
+                        <span class="text-2xl">🏆</span>
+                        <div>
+                            <div class="font-black text-sm">Yutuqlarim</div>
+                            <div class="text-[10px] text-slate-400">Statistika & ball</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESKTOP NAV TABS (faqat kompyuterlarda ko'rinadi, telefon/planshetda yashirinib ixcham bo'ladi!) -->
+        <div class="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 overflow-x-auto no-scrollbar border-t border-slate-800/40">
+            <nav class="flex space-x-2 py-2 text-sm font-semibold whitespace-nowrap">
+                <button id="tab-btn-abacus" onclick="switchTab('abacus')" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition">
+                    <span>🧮</span> Interaktiv Abakus
+                </button>
+                <button id="tab-btn-flash" onclick="switchTab('flash')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                    <span>⚡</span> Flesh Anzan
+                </button>
+                <button id="tab-btn-sprint" onclick="switchTab('sprint')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                    <span>⏱️</span> Tezkor Sprint
+                </button>
+                <button id="tab-btn-memory" onclick="switchTab('memory')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                    <span>🧠</span> Fotografik Xotira
+                </button>
+                <button id="tab-btn-formulas" onclick="switchTab('formulas')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                    <span>📚</span> Qoidalar & Formulalar
+                </button>
+                <button id="tab-btn-stats" onclick="switchTab('stats')" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 flex items-center gap-2 transition">
+                    <span>🏆</span> Yutuqlarim
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ASOSIY KONTENT MAYDONI -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 py-4 sm:py-6 overflow-hidden">
+
+        <!-- ==================== 1. INTERAKTIV ABAKUS (SOROBAN) BO'LIMI ==================== -->
+        <section id="section-abacus" class="space-y-6">
+            
+            <!-- Demo xabarnoma banneri -->
+            <div id="abacus-demo-banner" class="hidden p-4 bg-indigo-950/70 border border-indigo-500/50 rounded-2xl text-sm text-indigo-200 shadow-xl"></div>
+
+            <!-- Abakus boshqaruv paneli -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                
+                <!-- Rejimlar -->
+                <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+                    <button onclick="setAbacusMode('free')" id="mode-free-btn" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-bold text-xs transition">
+                        Erkin hisoblash
+                    </button>
+                    <button onclick="setAbacusMode('build')" id="mode-build-btn" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white font-bold text-xs transition">
+                        🎯 Sonni terish
+                    </button>
+                </div>
+
+                <!-- Qiymat ko'rsatgichi (LCD Display) -->
+                <div class="flex items-center gap-2 sm:gap-3 bg-slate-950/90 px-4 sm:px-5 py-2 rounded-2xl border border-slate-800">
+                    <span class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">Hosil bo'lgan son:</span>
+                    <span id="abacus-total-val" class="text-xl sm:text-3xl font-black font-mono text-amber-400 tracking-wider">0</span>
+                </div>
+
+                <!-- Boshqaruv tugmalari (Tozalash, Tasodifiy, Sozlamalar) -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="window.soroban.clear()" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/20 transition active:scale-95 flex items-center gap-1.5">
+                        <span>🔄</span> Tozalash (0)
+                    </button>
+                    <button onclick="setRandomAbacusNumber()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl transition active:scale-95 flex items-center gap-1.5">
+                        <span>🎲</span> Tasodifiy son
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mashq topshiriq paneli (agar faol bo'lsa) -->
+            <div id="abacus-challenge-box" class="hidden bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 rounded-2xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🎯</span>
+                    <div>
+                        <div class="text-xs text-indigo-300 font-semibold uppercase">Abakus Mashqi</div>
+                        <div id="abacus-challenge-text" class="text-base text-slate-100 font-medium">Ushbu sonni abakusda tering...</div>
+                    </div>
+                </div>
+                <div class="bg-indigo-900/60 px-4 py-2 rounded-xl border border-indigo-400/30 text-right">
+                    <div class="text-[10px] text-indigo-300 uppercase font-bold">To'plangan ball</div>
+                    <div id="abacus-challenge-score" class="text-xl font-black text-amber-400 font-mono">0</div>
+                </div>
+            </div>
+
+            <!-- ABAKUS MODELI KONTEYNERI -->
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-2 sm:p-6 shadow-2xl relative w-full overflow-hidden">
+                <div id="soroban-container" class="w-full">
+                    <!-- Abakus ushbu yerga avtomatik chiziladi -->
+                </div>
+            </div>
+
+            <!-- Pastki sozlamalar (Ustunlar soni, Mavzu, Qoidalar ko'rsatgichi) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Ustunlar soni -->
+                <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-300">Simlar (Ustunlar) soni</div>
+                        <div class="text-[11px] text-slate-500">Xonalar miqdori</div>
+                    </div>
+                    <select id="abacus-rod-select" onchange="changeAbacusRods(this.value)" class="bg-slate-950 border border-slate-700 text-amber-400 font-bold text-sm rounded-xl px-3 py-1.5 outline-none cursor-pointer">
+                        <option value="5">5 ta sim</option>
+                        <option value="7" selected>7 ta sim</option>
+                        <option value="9">9 ta sim</option>
+                        <option value="11">11 ta sim</option>
+                    </select>
+                </div>
+
+                <!-- Mavzu tanlash -->
+                <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-300">Abakus Mavzusi</div>
+                        <div class="text-[11px] text-slate-500">Rang va yog'och stili</div>
+                    </div>
+                    <select onchange="window.soroban.setTheme(this.value)" class="bg-slate-950 border border-slate-700 text-slate-200 font-bold text-sm rounded-xl px-3 py-1.5 outline-none cursor-pointer">
+                        <option value="wood">🪵 Yog'och (Klassik)</option>
+                        <option value="modern">🌌 Zamonaviy Slate</option>
+                        <option value="ruby">💎 Qizil Yoqut</option>
+                        <option value="jade">🌿 Zumrad Yashil</option>
+                    </select>
+                </div>
+
+                <!-- Raqamlar ko'rsatilsinmi -->
+                <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-300">Raqamlar yordami</div>
+                        <div class="text-[11px] text-slate-500">Pastki sonlarni ko'rsatish</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-numbers-cb" checked onchange="window.soroban.toggleValues(this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+
+                <!-- Xona nomlari ko'rsatilsinmi -->
+                <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-slate-300">Xona nomlari</div>
+                        <div class="text-[11px] text-slate-500">Birlik, O'nlik, Yuzlik...</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-labels-cb" checked onchange="window.soroban.toggleLabels(this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Abakusdan qanday foydalanish bo'yicha qisqa ko'rsatma -->
+            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 text-sm text-slate-300">
+                <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-2">
+                    💡 Soroban (Abakus) qanday ishlaydi?
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs leading-relaxed text-slate-400">
+                    <div>
+                        <strong class="text-slate-200">1. Yuqori qism (Osmon munchoqlari):</strong> Har bir ustunda bittadan munchoq bo'lib, uning qiymati <strong>5</strong> ga teng. To'siqqa pastga tushganda faollashadi.
+                    </div>
+                    <div>
+                        <strong class="text-slate-200">2. Quyi qism (Yer munchoqlari):</strong> Har bir ustunda to'rttadan munchoq bo'lib, har birining qiymati <strong>1</strong> ga teng. To'siqqa yuqoriga ko'tarilganda faollashadi.
+                    </div>
+                    <div>
+                        <strong class="text-slate-200">3. Birlik nuqtalari:</strong> To'siqdagi oq nuqtalar har 3 ustunda joylashgan bo'lib, birliklar, minglar va millionlarni belgilaydi.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 2. FLESH ANZAN (FLASH CALCULATION) BO'LIMI ==================== -->
+        <section id="section-flash" class="hidden space-y-6">
+            
+            <!-- Yuqori qator: Sarlavha, joriy sozlama va Sozlamalar (⚙️) tugmasi -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl flex items-center justify-between gap-3 flex-wrap">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl shadow-inner">
+                        ⚡
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                            Flesh Anzan
+                        </h2>
+                        <p class="text-[11px] text-slate-400 hidden sm:block">Tezkor xayoliy hisoblash trenajyori</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- Joriy sozlama ko'rsatgichi -->
+                    <span id="flash-summary-badge" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-bold font-mono text-amber-400">
+                        1 xona • 5 ta son • 1.0s • (+)
+                    </span>
+
+                    <!-- SOZLAMALAR KICHIK TUGMASI (⚙️) -->
+                    <button type="button" onclick="openFlashSettingsModal()" class="px-3 py-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/40 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition active:scale-95 group cursor-pointer" title="Sozlamalarni o'zgartirish">
+                        <span class="text-base group-hover:rotate-45 transition-transform duration-300">⚙️</span>
+                        <span>Sozlash</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Asosiy Flesh Arena (Markazlashtirilgan, toza va keng) -->
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Chaqnash ekrani -->
+                <div id="flash-number-display" class="flash-display-box">
+                    <div class="text-center p-6">
+                        <div class="text-5xl mb-3">⚡</div>
+                        <div class="text-2xl font-black text-slate-200">Flesh Anzan</div>
+                        <p class="text-xs text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed">
+                            Sonlar belgilangan tezlikda ketma-ket chaqnaydi. Xayolan hisoblang va yakuniy javobni kiriting!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Boshlash tugmasi -->
+                <button id="flash-start-btn" class="w-full py-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600 hover:from-indigo-500 hover:to-indigo-400 text-white font-black text-lg rounded-2xl shadow-xl shadow-indigo-600/30 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>🚀</span> Boshlash!
+                </button>
+
+                <!-- Javob kiritish maydoni -->
+                <div id="flash-input-area" class="hidden bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="flash-user-answer" placeholder="Javobingizni kiriting..." class="flex-1 bg-slate-950 border-2 border-slate-700 focus:border-indigo-500 rounded-2xl p-4 text-2xl font-black font-mono text-center text-amber-400 outline-none">
+                        <button id="flash-submit-btn" class="px-6 sm:px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base sm:text-lg rounded-2xl shadow-lg transition active:scale-95">
+                            Tekshirish ✔
+                        </button>
+                    </div>
+
+                    <!-- Ekrandagi Virtual Numpad (Planshet va telefonlar uchun) -->
+                    <div class="grid grid-cols-3 gap-2 pt-2 max-w-xs mx-auto">
+                        <button onclick="appendFlashDigit(1)" class="numpad-btn">1</button>
+                        <button onclick="appendFlashDigit(2)" class="numpad-btn">2</button>
+                        <button onclick="appendFlashDigit(3)" class="numpad-btn">3</button>
+                        <button onclick="appendFlashDigit(4)" class="numpad-btn">4</button>
+                        <button onclick="appendFlashDigit(5)" class="numpad-btn">5</button>
+                        <button onclick="appendFlashDigit(6)" class="numpad-btn">6</button>
+                        <button onclick="appendFlashDigit(7)" class="numpad-btn">7</button>
+                        <button onclick="appendFlashDigit(8)" class="numpad-btn">8</button>
+                        <button onclick="appendFlashDigit(9)" class="numpad-btn">9</button>
+                        <button onclick="clearFlashInput()" class="numpad-btn text-rose-400">C</button>
+                        <button onclick="appendFlashDigit(0)" class="numpad-btn">0</button>
+                        <button onclick="backspaceFlashInput()" class="numpad-btn text-amber-400">⌫</button>
+                    </div>
+                </div>
+
+                <!-- Natija ekrani -->
+                <div id="flash-result-area" class="hidden"></div>
+            </div>
+
+            <!-- ==================== FLESH ANZAN SOZLAMALAR MODALI (⚙️) ==================== -->
+            <div id="flash-settings-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md" onclick="if(event.target === this) closeFlashSettingsModal()">
+                <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 shadow-2xl max-w-lg w-full space-y-5 relative max-h-[90vh] overflow-y-auto">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">⚙️</span>
+                            <div>
+                                <h3 class="text-lg font-black text-white">Flesh Anzan Sozlamalari</h3>
+                                <p class="text-xs text-slate-400">Tezlik va qiyinlik darajasini o'zgartiring</p>
+                            </div>
+                        </div>
+                        <button onclick="closeFlashSettingsModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center font-bold text-sm transition">
+                            ✕
+                        </button>
+                    </div>
+
+                    <!-- 1. Xonalar soni -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold text-slate-300">Xonalar soni:</label>
+                            <span id="flash-digits-label" class="text-xs font-extrabold text-amber-400 font-mono">1 xonali (1—9)</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button type="button" onclick="selectFlashDigits(1, this)" class="setting-chip active py-2.5 px-1 rounded-xl text-xs font-bold text-center border">
+                                1 xona
+                            </button>
+                            <button type="button" onclick="selectFlashDigits(2, this)" class="setting-chip py-2.5 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                2 xona
+                            </button>
+                            <button type="button" onclick="selectFlashDigits(3, this)" class="setting-chip py-2.5 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                3 xona
+                            </button>
+                            <button type="button" onclick="selectFlashDigits(4, this)" class="setting-chip py-2.5 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                4 xona
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Sonlar miqdori -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold text-slate-300">Misollar soni:</label>
+                            <span id="flash-count-label" class="text-xs font-extrabold text-amber-400 font-mono">5 ta son</span>
+                        </div>
+                        <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                            <button type="button" onclick="selectFlashCount(3, this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                3 ta
+                            </button>
+                            <button type="button" onclick="selectFlashCount(5, this)" class="setting-chip active py-2 px-1 rounded-xl text-xs font-bold text-center border">
+                                5 ta
+                            </button>
+                            <button type="button" onclick="selectFlashCount(7, this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                7 ta
+                            </button>
+                            <button type="button" onclick="selectFlashCount(10, this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                10 ta
+                            </button>
+                            <button type="button" onclick="selectFlashCount(15, this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                15 ta
+                            </button>
+                            <button type="button" onclick="selectFlashCount(20, this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                20 ta 🏆
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Chaqnash tezligi -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-bold text-slate-300">Chaqnash tezligi:</label>
+                            <span id="flash-speed-label" class="text-xs font-extrabold text-amber-400 font-mono">1.0s (Standart)</span>
+                        </div>
+                        <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                            <button type="button" onclick="selectFlashSpeed(2.0, '2.0s (Sekin)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                2.0s
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(1.5, '1.5s (O\'rganish)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                1.5s
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(1.0, '1.0s (Standart)', this)" class="setting-chip active py-2 px-1 rounded-xl text-xs font-bold text-center border">
+                                1.0s
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(0.7, '0.7s (Tezkor ⚡)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                0.7s ⚡
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(0.5, '0.5s (Usta 🚀)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                0.5s 🚀
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(0.3, '0.3s (Chempion 🔥)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                0.3s 🔥
+                            </button>
+                            <button type="button" onclick="selectFlashSpeed(0.2, '0.2s (Ekstremal ⚡⚡)', this)" class="setting-chip py-2 px-1 rounded-xl text-xs font-bold text-center bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700">
+                                0.2s ⚡
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Amallar turi -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">Amallar turi:</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button type="button" id="flash-op-add-only" onclick="selectFlashOperation(false, this)" class="setting-chip active p-3 rounded-2xl text-xs font-bold text-left border flex items-center gap-2.5">
+                                <span class="text-xl">➕</span>
+                                <div>
+                                    <div class="font-black text-white text-xs">Faqat qo'shish</div>
+                                    <div class="text-[10px] opacity-75">Barcha sonlar musbat</div>
+                                </div>
+                            </button>
+                            <button type="button" id="flash-op-add-sub" onclick="selectFlashOperation(true, this)" class="setting-chip p-3 rounded-2xl text-xs font-bold text-left bg-slate-950 border border-slate-800 text-slate-300 hover:border-slate-700 flex items-center gap-2.5">
+                                <span class="text-xl">➕➖</span>
+                                <div>
+                                    <div class="font-black text-white text-xs">Qo'shish & Ayirish</div>
+                                    <div class="text-[10px] text-rose-400">Manfiy sonlar bilan</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Saqlash Tugmasi -->
+                    <div class="pt-2">
+                        <button onclick="closeFlashSettingsModal()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black text-sm rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                            <span>✔</span> Saqlash va Yopish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 3. TEZKOR SPRINT (BLITZ 60 SONIYA) ==================== -->
+        <section id="section-sprint" class="hidden space-y-6">
+            
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Yuqori Sprint Statistikasi -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 sm:gap-3">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl sm:text-2xl">
+                                ⏱️
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-black text-white">60 Soniya Sprint</h3>
+                                <p class="text-[11px] text-slate-400">Vaqt tugashidan oldin imkon qadar ko'p misol yeching!</p>
+                            </div>
+                        </div>
+
+                        <!-- Timer belgisi -->
+                        <div class="text-right">
+                            <div class="text-[10px] text-slate-400 font-semibold uppercase">Qolgan vaqt</div>
+                            <div id="sprint-timer" class="text-2xl sm:text-3xl font-black font-mono text-amber-400">60s</div>
+                        </div>
+                    </div>
+
+                    <!-- Taymerning vizual chizig'i -->
+                    <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                        <div id="sprint-progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+
+                    <!-- Ball va Combo -->
+                    <div class="flex items-center justify-between pt-2">
+                        <div>
+                            <span class="text-xs text-slate-400">To'plangan Ball:</span>
+                            <span id="sprint-score" class="text-xl sm:text-2xl font-black font-mono text-emerald-400 ml-2">0</span>
+                        </div>
+                        <div id="sprint-combo"></div>
+                    </div>
+                </div>
+
+                <!-- Misol ekrani -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl text-center space-y-6">
+                    
+                    <div id="sprint-problem" class="text-4xl sm:text-5xl font-black tracking-wider py-4">
+                        <span class="text-slate-500 text-2xl">Tayyormisiz?</span>
+                    </div>
+
+                    <!-- Javob kiritish -->
+                    <div>
+                        <input type="number" id="sprint-input" disabled placeholder="Javob..." class="w-full max-w-xs bg-slate-950 border-2 border-slate-700 focus:border-indigo-500 rounded-2xl p-4 text-3xl font-black font-mono text-center text-amber-400 outline-none transition">
+                    </div>
+
+                    <!-- Sprint sozlamalari (faqat o'yin boshlanishidan oldin) -->
+                    <div class="flex justify-center gap-4 text-xs font-semibold">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400">Daraja:</span>
+                            <select id="sprint-diff-select" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300 outline-none">
+                                <option value="easy">Oson (1 xonali)</option>
+                                <option value="medium" selected>O'rtacha (2 xonali)</option>
+                                <option value="hard">Qiyin (Aralash)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400">Amallar:</span>
+                            <select id="sprint-op-select" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-300 outline-none">
+                                <option value="add_sub" selected>Qo'shish / Ayirish (+, -)</option>
+                                <option value="all">Barchasi (+, -, ×)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="sprint-start-btn" class="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-lg rounded-2xl shadow-xl shadow-amber-500/20 transition active:scale-95">
+                        🚀 Sprintni boshlash!
+                    </button>
+                </div>
+
+                <!-- Natija modali -->
+                <div id="sprint-result-modal" class="hidden"></div>
+            </div>
+        </section>
+
+
+        <!-- ==================== 4. FOTOGRAFIK XOTIRA O'YINI ==================== -->
+        <section id="section-memory" class="hidden space-y-6">
+            
+            <div class="max-w-xl mx-auto space-y-6">
+                <!-- Tavsif va statistika -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                            <span>🧠</span> Fotografik Xotira
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-slate-400 mt-1">Munchoqlar bir lahzaga ko'rsatiladi. Sonni eslab qoling!</p>
+                    </div>
+
+                    <div class="flex gap-3 sm:gap-4 text-center">
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">Bosqich</div>
+                            <div id="memory-level" class="text-xl sm:text-2xl font-black text-indigo-400 font-mono">1</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">Ball</div>
+                            <div id="memory-score" class="text-xl sm:text-2xl font-black text-amber-400 font-mono">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abakus munchoqlarining chaqnashi maydoni -->
+                <div id="memory-abacus-card" class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl min-h-[240px] flex items-center justify-center">
+                    <div class="text-center p-4 sm:p-6">
+                        <div class="text-5xl mb-3">👁️</div>
+                        <div class="text-xl font-bold text-slate-200">Xotira Mashg'uloti</div>
+                        <p class="text-xs text-slate-400 mt-2 max-w-xs mx-auto">
+                            Abakusdagi munchoqlar joylashuvini ko'z ochib yumguncha ilg'ab olishni mashq qiling!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Javob kiritish -->
+                <div id="memory-input-area" class="hidden space-y-3">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <input type="number" id="memory-answer-input" placeholder="Sonni kiriting..." class="flex-1 bg-slate-950 border-2 border-slate-700 focus:border-indigo-500 rounded-2xl p-3.5 sm:p-4 text-xl sm:text-2xl font-black font-mono text-center text-amber-400 outline-none">
+                        <button id="memory-submit-btn" class="px-5 sm:px-6 py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base rounded-2xl shadow-lg transition active:scale-95">
+                            Tekshirish ✔
+                        </button>
+                    </div>
+                </div>
+
+                <div id="memory-feedback"></div>
+
+                <button id="memory-start-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-lg rounded-2xl shadow-xl transition active:scale-95">
+                    🎮 O'yinni boshlash
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ==================== 5. FORMULALAR VA QOIDALAR ==================== -->
+        <section id="section-formulas" class="hidden space-y-6">
+            
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-3xl">
+                        📖
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white">Mental Arifmetika Qoidalari va Formulalari</h2>
+                        <p class="text-sm text-slate-400 mt-1">
+                            "Kichik do'stlar" (5 qoidasi), "Katta do'stlar" (10 qoidasi) va Aralash formulalar. Har bir formulani abakusda sinab ko'ring!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulalar ro'yxati konteyneri (formulas.js orqali yuklanadi) -->
+            <div id="formulas-container"></div>
+        </section>
+
+
+        <!-- ==================== 6. YUTUQLAR VA STATISTIKA ==================== -->
+        <section id="section-stats" class="hidden space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 text-center">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <div class="text-xs text-slate-400 font-bold uppercase">Jami yechilgan misollar</div>
+                    <div id="stats-total-solved-card" class="text-3xl sm:text-4xl font-black font-mono text-indigo-400 mt-1">0</div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 text-center">
+                    <div class="text-3xl mb-2">✅</div>
+                    <div class="text-xs text-slate-400 font-bold uppercase">To'g'ri ishlanganlar</div>
+                    <div id="stats-correct" class="text-3xl sm:text-4xl font-black font-mono text-emerald-400 mt-1">0</div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 text-center">
+                    <div class="text-3xl mb-2">🔥</div>
+                    <div class="text-xs text-slate-400 font-bold uppercase">Aniqlik foizi</div>
+                    <div id="stats-accuracy-card" class="text-3xl sm:text-4xl font-black font-mono text-amber-400 mt-1">0%</div>
+                </div>
+            </div>
+
+            <!-- Yutuqlar (Badges) -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl">
+                <h3 class="text-lg font-black text-white mb-4 flex items-center gap-2">
+                    <span>🏅</span> Mening Nishonlarim va Yutuqlarim
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Badge 1 -->
+                    <div id="badge-first_step" class="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 transition">
+                        <div class="text-3xl">🌱</div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-200">Birinchi Qadam</div>
+                            <div class="text-xs text-slate-500">1 ta to'g'ri misol yechildi</div>
+                        </div>
+                    </div>
+
+                    <!-- Badge 2 -->
+                    <div id="badge-flash_master" class="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 transition">
+                        <div class="text-3xl">⚡</div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-200">Flesh Qahramoni</div>
+                            <div class="text-xs text-slate-500">Flesh Anzanda 10 ta to'g'ri javob</div>
+                        </div>
+                    </div>
+
+                    <!-- Badge 3 -->
+                    <div id="badge-sprint_hero" class="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 transition">
+                        <div class="text-3xl">🏃</div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-200">Chaqmoq Hisobchi</div>
+                            <div class="text-xs text-slate-500">Sprintda 150 balldan oshirish</div>
+                        </div>
+                    </div>
+
+                    <!-- Badge 4 -->
+                    <div id="badge-abacus_pro" class="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 transition">
+                        <div class="text-3xl">🧮</div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-200">Abakus Ustasi</div>
+                            <div class="text-xs text-slate-500">Abakus mashqida 50 ball to'plash</div>
+                        </div>
+                    </div>
+
+                    <!-- Badge 5 -->
+                    <div id="badge-photographic_mind" class="p-4 rounded-2xl border border-slate-800 bg-slate-950/60 flex items-center gap-3 transition">
+                        <div class="text-3xl">🧠</div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-200">Fotografik Xotira</div>
+                            <div class="text-xs text-slate-500">Xotira o'yinida 5-bosqichga yetish</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 bg-slate-900/60 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                © 2026 <strong class="text-slate-300">MentalPro</strong> — Mental Arifmetika va Soroban Akademiyasi.
+            </div>
+            <div class="flex items-center gap-4 text-slate-400">
+                <span>⚡ Tezkor hisob</span>
+                <span>•</span>
+                <span>🧮 Soroban Abakus</span>
+                <span>•</span>
+                <span>🧠 Fotografik Xotira</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- HELPER SCRIPTLAR -->
+    <script>
+        // Flesh Anzan Numpad yordamchi funksiyalari
+        function appendFlashDigit(d) {
+            const inp = document.getElementById('flash-user-answer');
+            if (inp) inp.value = (inp.value || '') + d;
+        }
+        function clearFlashInput() {
+            const inp = document.getElementById('flash-user-answer');
+            if (inp) inp.value = '';
+        }
+        function backspaceFlashInput() {
+            const inp = document.getElementById('flash-user-answer');
+            if (inp && inp.value.length > 0) inp.value = inp.value.slice(0, -1);
+        }
+
+        // Abakus rejimlari
+        function setAbacusMode(mode) {
+            const freeBtn = document.getElementById('mode-free-btn');
+            const buildBtn = document.getElementById('mode-build-btn');
+            const box = document.getElementById('abacus-challenge-box');
+
+            if (mode === 'free') {
+                if (window.soroban) window.soroban.trainingMode = 'free';
+                freeBtn.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-bold text-xs transition';
+                buildBtn.className = 'px-3.5 py-1.5 rounded-xl text-slate-400 hover:text-white font-bold text-xs transition';
+                if (box) box.classList.add('hidden');
+            } else if (mode === 'build') {
+                buildBtn.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-bold text-xs transition';
+                freeBtn.className = 'px-3.5 py-1.5 rounded-xl text-slate-400 hover:text-white font-bold text-xs transition';
+                if (box) box.classList.remove('hidden');
+                if (window.soroban) window.soroban.startBuildNumberChallenge(3);
+            }
+        }
+
+        function setRandomAbacusNumber() {
+            if (window.soroban) {
+                const max = Math.pow(10, Math.min(window.soroban.rodCount, 6)) - 1;
+                const rnd = Math.floor(Math.random() * max) + 1;
+                window.soroban.setNumber(rnd);
+            }
+        }
+
+        function changeAbacusRods(count) {
+            if (window.soroban) {
+                window.soroban.setRodCount(parseInt(count));
+            }
+        }
+    </script>
+
+    <!-- Project JS Fayllari -->
+    <script src="js/audio.js"></script>
+    <script src="js/abacus.js"></script>
+    <script src="js/flash-anzan.js"></script>
+    <script src="js/sprint.js"></script>
+    <script src="js/memory-game.js"></script>
+    <script src="js/formulas.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
