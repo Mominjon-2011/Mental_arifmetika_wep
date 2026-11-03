@@ -143,7 +143,9 @@ class FlashAnzan {
 
         this.inputArea.classList.remove('hidden');
         this.answerInput.value = '';
-        this.answerInput.focus();
+        if (!('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+            this.answerInput.focus();
+        }
 
         this.startBtn.disabled = false;
         this.startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -151,9 +153,9 @@ class FlashAnzan {
     }
 
     submitAnswer() {
-        const userVal = parseInt(this.answerInput.value.trim());
+        const valStr = this.answerInput.value.trim();
+        const userVal = parseInt(valStr);
         if (isNaN(userVal)) {
-            this.answerInput.focus();
             return;
         }
 

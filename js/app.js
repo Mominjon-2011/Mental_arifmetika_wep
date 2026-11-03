@@ -180,12 +180,6 @@ function switchTab(tabId) {
         }
     });
 
-    // Mobil menyu tugmasidagi sarlavhani yangilash
-    const mobileTabLabel = document.getElementById('mobile-current-tab-text');
-    if (mobileTabLabel && tabNames[tabId]) {
-        mobileTabLabel.textContent = tabNames[tabId];
-    }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -400,11 +394,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Kompyuter klaviaturasini boshqarish (Flesh Anzan javob kiritish uchun)
+    window.addEventListener('keydown', (e) => {
+        const flashSection = document.getElementById('section-flash');
+        const flashInputArea = document.getElementById('flash-input-area');
+        if (!flashSection || flashSection.classList.contains('hidden')) return;
+        if (!flashInputArea || flashInputArea.classList.contains('hidden')) return;
+        if (window.flashAnzan && window.flashAnzan.isPlaying) return;
+
+        // Boshqa form inputlarida (masalan sozlamalar modalida) xalaqit bermaslik
+        if (e.target && e.target.tagName === 'INPUT' && e.target.id !== 'flash-user-answer') return;
+
+        if (e.key >= '0' && e.key <= '9') {
+            appendFlashDigit(e.key);
+            e.preventDefault();
+        } else if (e.key === 'Backspace') {
+            backspaceFlashInput();
+            e.preventDefault();
+        } else if (e.key === '-' || e.key === 'Subtract') {
+            toggleFlashMinus();
+            e.preventDefault();
+        } else if (e.key === 'Enter') {
+            if (window.flashAnzan) window.flashAnzan.submitAnswer();
+            e.preventDefault();
+        } else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+            clearFlashInput();
+            e.preventDefault();
+        }
+    });
+
+    // Touch ekranlarda telefonning o'z soft-klaviaturasi chiqib ketmasligi uchun
     const flashInput = document.getElementById('flash-user-answer');
     if (flashInput) {
-        flashInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                window.flashAnzan.submitAnswer();
+        flashInput.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        });
+        flashInput.addEventListener('focus', () => {
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                flashInput.blur();
             }
         });
     }

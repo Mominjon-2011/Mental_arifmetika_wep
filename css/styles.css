@@ -338,16 +338,26 @@ body {
     background: #1e293b;
     border: 1px solid #334155;
     border-radius: 14px;
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size: 1.45rem;
+    font-weight: 800;
     color: #f1f5f9;
-    padding: 16px 0;
+    padding: 12px 0;
     transition: all 0.12s ease;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+@media (min-width: 640px) {
+    .numpad-btn {
+        padding: 15px 0;
+        font-size: 1.65rem;
+    }
 }
 
 .numpad-btn:active {
-    transform: scale(0.94);
+    transform: scale(0.93);
     background: #334155;
     border-color: #6366f1;
 }
